@@ -35,7 +35,8 @@ def main() -> int:
     print(f"Completed {len(results)} semantic query tasks successfully.")
     score_counts = Counter(item["score"] for item in results)
 
-    output_dir = Path("output")
+    repo_root = Path(__file__).resolve().parents[1]
+    output_dir = repo_root / "artifact"
     output_dir.mkdir(exist_ok=True)
 
     results_path = output_dir / "results.json"

@@ -67,11 +67,11 @@ jobs:
           python3 run_workers_variation12_first200.py
 
       - name: Upload semantic worker artifacts
-        if: ${{ always() && hashFiles('Semantic_query_testing/output/*') != '' }}
+        if: ${{ always() && hashFiles('artifact/*') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: semantic-worker-results
-          path: Semantic_query_testing/output/
+          path: artifact/
           if-no-files-found: error
 
       - name: Fallback check for empty/new repos
