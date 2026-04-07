@@ -55,6 +55,8 @@ jobs:
 
       - name: Run semantic query workers script
         run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install openpyxl
           if [ ! -d "Semantic_query_testing" ]; then
             echo "Directory Semantic_query_testing not found."
             exit 1
