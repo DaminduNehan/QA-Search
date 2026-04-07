@@ -53,6 +53,19 @@ jobs:
           if [ -f pyproject.toml ]; then pip install .; fi
           pytest -q
 
+      - name: Run semantic query workers script
+        run: |
+          if [ ! -d "Semantic_query_testing" ]; then
+            echo "Directory Semantic_query_testing not found."
+            exit 1
+          fi
+          cd Semantic_query_testing
+          if [ ! -f "run_workers_variation12_first200.py" ]; then
+            echo "Script run_workers_variation12_first200.py not found."
+            exit 1
+          fi
+          python3 run_workers_variation12_first200.py
+
       - name: Fallback check for empty/new repos
         if: ${{ hashFiles('**/package.json', '**/requirements.txt', '**/pyproject.toml') == '' }}
         run: echo "No Node.js or Python project files found yet. CI starter is ready."
