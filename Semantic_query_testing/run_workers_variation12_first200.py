@@ -1,64 +1,240 @@
-#!/usr/bin/env python3
-"""
-Runs a 200-item semantic-query worker batch.
-
-This is CI-safe: no external services are required.
-"""
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from collections import Counter
 import json
+import os
+import sys
+import time
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
+from openpyxl import Workbook, load_workbook
 
-def process_query(index: int) -> dict:
-    # Lightweight deterministic workload for CI validation.
-    query = f"semantic query #{index}"
-    score = len(query) % 10
-    return {"id": index, "query": query, "score": score}
+INPUT_JSON = Path(__file__).with_name("Variation_12_B2C_Humanized_Examples.json")
+OUT_XLSX_DEFAULT = Path(__file__).with_name("variation_12_first200_workers_results.xlsx")
+
+BASE_URL = "https://search-api-wurthbaer-qa.search-villvay.workers.dev/search"
+PAGE_SIZE = 24
+IS_FILTER_BY_BRAND = "false"
+LIMIT_QUERIES = 200
+
+# Safety caps to prevent runaway output on very broad queries.
+MAX_PAGES_PER_QUERY = 200
+REQUEST_DELAY_S = 0.15
+TIMEOUT_S = 30
+RETRIES_PER_PAGE = 4
+RETRY_BACKOFF_S = 0.6
 
 
-def main() -> int:
-    total_items = 200
-    max_workers = 12
+def extract_product_titles(payload: dict) -> list[str]:
+    results = payload.get("results") if isinstance(payload, dict) else None
+    products = results.get("products") if isinstance(results, dict) else None
+    if not isinstance(products, list):
+        return []
+    out: list[str] = []
+    for p in products:
+        if isinstance(p, str):
+            t = p.strip()
+        elif isinstance(p, dict):
+            t = (
+                p.get("productTitle")
+                or p.get("primaryProductTitle")
+                or p.get("title")
+                or p.get("name")
+                or ""
+            )
+            t = str(t).strip()
+        else:
+            t = ""
+        if t:
+            out.append(t)
+    return out
 
-    print(
-        f"Running semantic worker batch: total_items={total_items}, max_workers={max_workers}"
+
+def fetch_page(query: str, page: int) -> dict:
+    params = {
+        "page": str(page),
+        "query": query,
+        "isFilterByBrand": IS_FILTER_BY_BRAND,
+        "pageSize": str(PAGE_SIZE),
+    }
+    url = f"{BASE_URL}?{urllib.parse.urlencode(params)}"
+    req = urllib.request.Request(url, method="GET")
+    req.add_header("accept", "application/json")
+    req.add_header("content-type", "application/json")
+    req.add_header(
+        "user-agent",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+    )
+    payload = None
+    last_error: str | None = None
+    for attempt in range(RETRIES_PER_PAGE):
+        try:
+            with urllib.request.urlopen(req, timeout=TIMEOUT_S) as resp:
+                raw = resp.read().decode("utf-8", errors="replace")
+            payload = json.loads(raw)
+            break
+        except Exception as e:  # noqa: BLE001
+            last_error = str(e)
+            if attempt < RETRIES_PER_PAGE - 1:
+                time.sleep(RETRY_BACKOFF_S * (attempt + 1))
+                continue
+            raise
+
+    summary = payload.get("summary") if isinstance(payload, dict) else {}
+    return {
+        "payload": payload,
+        "page": int(summary.get("page") or page),
+        "pageSize": int(summary.get("pageSize") or PAGE_SIZE),
+        "total": int(summary.get("total") or 0),
+        "totalPages": int(summary.get("totalPages") or 0),
+        "products": extract_product_titles(payload),
+        "last_error": last_error or "",
+    }
+
+
+def _sheet_headers(ws) -> list[str]:
+    return [str(c.value or "").strip() for c in ws[1]]
+
+
+def _resume_state(ws, headers: list[str]) -> tuple[int, str | None]:
+    try:
+        q_col = headers.index("query") + 1
+    except ValueError:
+        return 0, None
+    last_query = None
+    seen: set[str] = set()
+    for r in range(2, ws.max_row + 1):
+        qv = ws.cell(r, q_col).value
+        qs = str(qv or "").strip()
+        if not qs:
+            continue
+        seen.add(qs)
+        last_query = qs
+    return len(seen), last_query
+
+
+def main() -> None:
+    try:
+        # Ensure live progress in terminals/pipes
+        sys.stdout.reconfigure(line_buffering=True)
+    except Exception:  # noqa: BLE001
+        pass
+    if not INPUT_JSON.exists():
+        raise SystemExit(f"Missing input file: {INPUT_JSON}")
+
+    data = json.loads(INPUT_JSON.read_text(encoding="utf-8"))
+    limit = int(os.environ.get("LIMIT_QUERIES", str(LIMIT_QUERIES)))
+    queries = data[:limit]
+
+    out_xlsx = Path(
+        os.environ.get("OUT_XLSX_PATH", str(OUT_XLSX_DEFAULT))
     )
 
-    results = []
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(process_query, i) for i in range(1, total_items + 1)]
-        for future in as_completed(futures):
-            results.append(future.result())
+    headers = [
+        "query",
+        "page",
+        "expected_results",
+        "actual_results",
+        "number_of_results",
+        "total_results",
+        "total_pages",
+        "page_size",
+    ]
 
-    print(f"Completed {len(results)} semantic query tasks successfully.")
-    score_counts = Counter(item["score"] for item in results)
+    start_idx = 0
+    if out_xlsx.exists():
+        wb = load_workbook(out_xlsx)
+        ws = wb["results"] if "results" in wb.sheetnames else wb.active
+        existing_headers = _sheet_headers(ws)
+        if existing_headers != headers:
+            raise SystemExit(
+                f"Existing workbook headers do not match expected format: {out_xlsx}"
+            )
+        completed_queries, _ = _resume_state(ws, headers)
+        start_idx = min(completed_queries, len(queries))
+        print(
+            f"Resuming existing workbook: {out_xlsx} "
+            f"(completed queries={completed_queries}, starting at query index {start_idx + 1})",
+            flush=True,
+        )
+    else:
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "results"
+        ws.append(headers)
+        wb.save(out_xlsx)
+        print(f"Created workbook: {out_xlsx}", flush=True)
 
-    repo_root = Path(__file__).resolve().parents[1]
-    output_dir = repo_root / "artifact"
-    output_dir.mkdir(exist_ok=True)
+    for qi, q in enumerate(queries[start_idx:], start=start_idx + 1):
+        query = str(q.get("query") or "").strip()
+        expected_list = q.get("expected_outputs") or []
+        if not expected_list:
+            base_query = str(q.get("base_query") or "").strip()
+            expected_list = [base_query] if base_query else []
+        expected_joined = "\n".join(str(x).strip() for x in expected_list if str(x).strip())
 
-    results_path = output_dir / "results.json"
-    summary = {
-        "total_items": len(results),
-        "max_workers": max_workers,
-        "score_counts": dict(sorted(score_counts.items())),
-    }
-    results_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        print(f"\n=== Query {qi}/{len(queries)} ===", flush=True)
+        print(query, flush=True)
 
-    max_count = max(score_counts.values()) if score_counts else 1
-    chart_lines = [f"Semantic Worker Result (n={len(results)})", ""]
-    for score in sorted(score_counts):
-        count = score_counts[score]
-        bar_len = max(1, round((count / max_count) * 40))
-        chart_lines.append(f"Score {score:>2} | {'#' * bar_len} ({count})")
+        page = 1
+        total_pages = None
+        while True:
+            try:
+                res = fetch_page(query, page)
+                products = res["products"]
+                if total_pages is None:
+                    total_pages = res["totalPages"] or 0
+                print(
+                    f"  page {page}/{total_pages or '?'} -> {len(products)} results "
+                    f"(total={res['total']}, pageSize={res['pageSize']})",
+                    flush=True,
+                )
 
-    chart_path = output_dir / "results_chart.txt"
-    chart_path.write_text("\n".join(chart_lines) + "\n", encoding="utf-8")
-    print(f"Wrote artifacts: {results_path} and {chart_path}")
-    return 0
+                row_dict = {
+                    "query": query,
+                    "page": page,
+                    "expected_results": expected_joined,
+                    "actual_results": "\n".join(products),
+                    "number_of_results": len(products),
+                    "total_results": res["total"],
+                    "total_pages": total_pages or res["totalPages"] or 0,
+                    "page_size": res["pageSize"],
+                }
+                ws.append([row_dict.get(h, "") for h in headers])
+
+                # Stop conditions
+                if not products:
+                    break
+                if total_pages and page >= total_pages:
+                    break
+                if page >= MAX_PAGES_PER_QUERY:
+                    print(
+                        f"  stopping: reached MAX_PAGES_PER_QUERY={MAX_PAGES_PER_QUERY}",
+                        flush=True,
+                    )
+                    break
+
+                page += 1
+                time.sleep(REQUEST_DELAY_S)
+            except Exception as e:  # noqa: BLE001
+                print(f"  ERROR page {page}: {e}", flush=True)
+                row_dict = {
+                    "query": query,
+                    "page": page,
+                    "expected_results": expected_joined,
+                    "actual_results": f"ERROR: {e}",
+                    "number_of_results": 0,
+                    "total_results": 0,
+                    "total_pages": total_pages or 0,
+                    "page_size": PAGE_SIZE,
+                }
+                ws.append([row_dict.get(h, "") for h in headers])
+                break
+        # Save after each query so progress persists.
+        wb.save(out_xlsx)
+
+    print(f"\nSaved Excel: {out_xlsx}", flush=True)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
