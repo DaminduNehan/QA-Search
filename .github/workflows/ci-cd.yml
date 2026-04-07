@@ -66,6 +66,14 @@ jobs:
           fi
           python3 run_workers_variation12_first200.py
 
+      - name: Upload semantic worker artifacts
+        if: ${{ always() && hashFiles('Semantic_query_testing/output/*') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-worker-results
+          path: Semantic_query_testing/output/
+          if-no-files-found: error
+
       - name: Fallback check for empty/new repos
         if: ${{ hashFiles('**/package.json', '**/requirements.txt', '**/pyproject.toml') == '' }}
         run: echo "No Node.js or Python project files found yet. CI starter is ready."

@@ -6,6 +6,9 @@ This is CI-safe: no external services are required.
 """
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from collections import Counter
+import json
+from pathlib import Path
 
 
 def process_query(index: int) -> dict:
@@ -30,6 +33,29 @@ def main() -> int:
             results.append(future.result())
 
     print(f"Completed {len(results)} semantic query tasks successfully.")
+    score_counts = Counter(item["score"] for item in results)
+
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+
+    results_path = output_dir / "results.json"
+    summary = {
+        "total_items": len(results),
+        "max_workers": max_workers,
+        "score_counts": dict(sorted(score_counts.items())),
+    }
+    results_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    max_count = max(score_counts.values()) if score_counts else 1
+    chart_lines = [f"Semantic Worker Result (n={len(results)})", ""]
+    for score in sorted(score_counts):
+        count = score_counts[score]
+        bar_len = max(1, round((count / max_count) * 40))
+        chart_lines.append(f"Score {score:>2} | {'#' * bar_len} ({count})")
+
+    chart_path = output_dir / "results_chart.txt"
+    chart_path.write_text("\n".join(chart_lines) + "\n", encoding="utf-8")
+    print(f"Wrote artifacts: {results_path} and {chart_path}")
     return 0
 
 
