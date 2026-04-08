@@ -7,6 +7,12 @@ import urllib.request
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
+from precision_recall_dashboard import (
+    METRIC_HEADERS,
+    calculate_precision_recall_fields,
+    ensure_results_headers,
+    generate_precision_recall_dashboard,
+)
 
 INPUT_JSON = Path(__file__).with_name("Variation_12_B2C_Humanized_Examples.json")
 OUT_XLSX_DEFAULT = Path(__file__).with_name("variation_12_first200_workers_results.xlsx")
@@ -17,7 +23,8 @@ IS_FILTER_BY_BRAND = "false"
 LIMIT_QUERIES = 200
 
 # Safety caps to prevent runaway output on very broad queries.
-MAX_PAGES_PER_QUERY = 200
+# Business rule: only fetch first two pages per query.
+MAX_PAGES_PER_QUERY = 2
 REQUEST_DELAY_S = 0.15
 TIMEOUT_S = 30
 RETRIES_PER_PAGE = 4
@@ -130,7 +137,7 @@ def main() -> None:
         os.environ.get("OUT_XLSX_PATH", str(OUT_XLSX_DEFAULT))
     )
 
-    headers = [
+    base_headers = [
         "query",
         "page",
         "expected_results",
@@ -140,16 +147,14 @@ def main() -> None:
         "total_pages",
         "page_size",
     ]
+    headers = base_headers + METRIC_HEADERS
 
     start_idx = 0
     if out_xlsx.exists():
         wb = load_workbook(out_xlsx)
         ws = wb["results"] if "results" in wb.sheetnames else wb.active
-        existing_headers = _sheet_headers(ws)
-        if existing_headers != headers:
-            raise SystemExit(
-                f"Existing workbook headers do not match expected format: {out_xlsx}"
-            )
+        ensure_results_headers(ws, base_headers)
+        wb.save(out_xlsx)
         completed_queries, _ = _resume_state(ws, headers)
         start_idx = min(completed_queries, len(queries))
         print(
@@ -200,6 +205,9 @@ def main() -> None:
                     "total_pages": total_pages or res["totalPages"] or 0,
                     "page_size": res["pageSize"],
                 }
+                row_dict.update(
+                    calculate_precision_recall_fields(expected_joined, products)
+                )
                 ws.append([row_dict.get(h, "") for h in headers])
 
                 # Stop conditions
@@ -228,11 +236,14 @@ def main() -> None:
                     "total_pages": total_pages or 0,
                     "page_size": PAGE_SIZE,
                 }
+                row_dict.update(calculate_precision_recall_fields(expected_joined, []))
                 ws.append([row_dict.get(h, "") for h in headers])
                 break
         # Save after each query so progress persists.
         wb.save(out_xlsx)
 
+    dashboard_path = generate_precision_recall_dashboard(out_xlsx)
+    print(f"Saved dashboard: {dashboard_path}", flush=True)
     print(f"\nSaved Excel: {out_xlsx}", flush=True)
 
 

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Precision and Recall Dashboard</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 24px; }
+    h1 { margin: 0 0 8px 0; }
+    p { color: #555; margin-top: 0; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #f7f7f7; position: sticky; top: 0; }
+    tr:nth-child(even) { background: #fafafa; }
+  </style>
+</head>
+<body>
+  <h1>Query-wise Precision and Recall Issue Dashboard</h1>
+  <p>
+    Precision count = intersection(expected, actual).<br/>
+    Recall issue count = expected items missing in actual.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Query</th>
+        <th>Expected Count</th>
+        <th>Actual Unique Count</th>
+        <th>Precision Count</th>
+        <th>Recall Issue Count</th>
+        <th>Precision %</th>
+        <th>Recall Issue %</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>What sanding options do you have?</td><td>10</td><td>660</td><td>0</td><td>10</td><td>0.00%</td><td>100.00%</td></tr><tr><td>I&#x27;m looking for a brown wood sheet.</td><td>10</td><td>519</td><td>4</td><td>6</td><td>0.77%</td><td>60.00%</td></tr><tr><td>I&#x27;m looking for sandpaper for finishing work.</td><td>10</td><td>652</td><td>10</td><td>0</td><td>1.53%</td><td>0.00%</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
