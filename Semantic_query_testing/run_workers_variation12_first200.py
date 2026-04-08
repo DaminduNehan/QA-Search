@@ -5,6 +5,7 @@ import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
+from typing import Optional, Tuple
 
 from openpyxl import Workbook, load_workbook
 
@@ -22,6 +23,7 @@ REQUEST_DELAY_S = 0.15
 TIMEOUT_S = 30
 RETRIES_PER_PAGE = 4
 RETRY_BACKOFF_S = 0.6
+MAX_CONSECUTIVE_403_ERRORS = 3
 
 
 def extract_product_titles(payload: dict) -> list[str]:
@@ -66,7 +68,7 @@ def fetch_page(query: str, page: int) -> dict:
         "(KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
     )
     payload = None
-    last_error: str | None = None
+    last_error: Optional[str] = None
     for attempt in range(RETRIES_PER_PAGE):
         try:
             with urllib.request.urlopen(req, timeout=TIMEOUT_S) as resp:
@@ -96,7 +98,7 @@ def _sheet_headers(ws) -> list[str]:
     return [str(c.value or "").strip() for c in ws[1]]
 
 
-def _resume_state(ws, headers: list[str]) -> tuple[int, str | None]:
+def _resume_state(ws, headers: list[str]) -> Tuple[int, Optional[str]]:
     try:
         q_col = headers.index("query") + 1
     except ValueError:
@@ -165,6 +167,7 @@ def main() -> None:
         wb.save(out_xlsx)
         print(f"Created workbook: {out_xlsx}", flush=True)
 
+    consecutive_403_errors = 0
     for qi, q in enumerate(queries[start_idx:], start=start_idx + 1):
         query = str(q.get("query") or "").strip()
         expected_list = q.get("expected_outputs") or []
@@ -218,17 +221,28 @@ def main() -> None:
                 time.sleep(REQUEST_DELAY_S)
             except Exception as e:  # noqa: BLE001
                 print(f"  ERROR page {page}: {e}", flush=True)
+                error_text = str(e)
                 row_dict = {
                     "query": query,
                     "page": page,
                     "expected_results": expected_joined,
-                    "actual_results": f"ERROR: {e}",
+                    "actual_results": f"ERROR: {error_text}",
                     "number_of_results": 0,
                     "total_results": 0,
                     "total_pages": total_pages or 0,
                     "page_size": PAGE_SIZE,
                 }
                 ws.append([row_dict.get(h, "") for h in headers])
+                if "403 Forbidden" in error_text or "Tunnel connection failed" in error_text:
+                    consecutive_403_errors += 1
+                    if consecutive_403_errors >= MAX_CONSECUTIVE_403_ERRORS:
+                        wb.save(out_xlsx)
+                        raise SystemExit(
+                            "Aborting early: repeated 403/tunnel failures from search API. "
+                            "Check network/access before rerunning."
+                        )
+                else:
+                    consecutive_403_errors = 0
                 break
         # Save after each query so progress persists.
         wb.save(out_xlsx)
