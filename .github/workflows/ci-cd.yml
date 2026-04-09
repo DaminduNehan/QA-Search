@@ -79,6 +79,28 @@ jobs:
             Semantic_query_testing/variation_12_refactored_smoke_precision_recall_dashboard.html
           if-no-files-found: error
 
+      - name: Run synonyms query automation
+        run: |
+          if [ ! -d "synonyms_query_automation" ]; then
+            echo "Directory synonyms_query_automation not found."
+            exit 1
+          fi
+          if [ ! -f "synonyms_query_automation/run_synonym_similarity_automation.py" ]; then
+            echo "Script run_synonym_similarity_automation.py not found."
+            exit 1
+          fi
+          python3 synonyms_query_automation/run_synonym_similarity_automation.py
+
+      - name: Upload synonyms automation artifacts
+        if: ${{ always() && hashFiles('synonyms_query_automation/synonym_similarity_results.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: synonyms-query-results
+          path: |
+            synonyms_query_automation/synonym_similarity_results.json
+            synonyms_query_automation/synonym_similarity_dashboard.html
+          if-no-files-found: error
+
       - name: Fallback check for empty/new repos
         if: ${{ hashFiles('**/package.json', '**/requirements.txt', '**/pyproject.toml') == '' }}
         run: echo "No Node.js or Python project files found yet. CI starter is ready."
