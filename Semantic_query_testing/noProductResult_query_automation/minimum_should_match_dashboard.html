@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minimum Should Match Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; color: #111; }
+    h1 { margin-bottom: 8px; }
+    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 10px 14px; min-width: 170px; }
+    .tabs button { margin-right: 8px; padding: 8px 10px; border: 1px solid #bbb; background: #f5f5f5; border-radius: 6px; cursor: pointer; }
+    .tabs button.active { background: #111; color: #fff; border-color: #111; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 7px 8px; text-align: left; font-size: 13px; }
+    th { background: #f6f6f6; }
+    .zero { color: #b91c1c; font-weight: 700; }
+    .ok { color: #047857; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>Minimum Should Match - Query Results</h1>
+  <div id="meta"></div>
+  <div class="cards" id="cards"></div>
+  <div class="tabs">
+    <button id="btnZero" class="active">No Results (0)</button>
+    <button id="btnAll">All Queries</button>
+    <button id="btnNonZero">Queries with Results (>0)</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>query</th>
+        <th>no_of_results</th>
+        <th>status</th>
+        <th>error</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <script>
+    const rows = [{"query": "25055101103", "no_of_results": 0, "error": ""}, {"query": "AVWHBM", "no_of_results": 0, "error": ""}, {"query": "Striplox", "no_of_results": 33, "error": ""}, {"query": "exedra", "no_of_results": 0, "error": ""}, {"query": "tghtbond", "no_of_results": 166, "error": ""}, {"query": "kerft 0.126", "no_of_results": 2, "error": ""}, {"query": "006.47.068", "no_of_results": 0, "error": ""}, {"query": "10090008952", "no_of_results": 0, "error": ""}, {"query": "11826595", "no_of_results": 0, "error": ""}, {"query": "144-130-191", "no_of_results": 0, "error": ""}, {"query": "144-130-202", "no_of_results": 0, "error": ""}, {"query": "144-130-289", "no_of_results": 0, "error": ""}, {"query": "144-140-190", "no_of_results": 0, "error": ""}, {"query": "2014-2055", "no_of_results": 0, "error": ""}, {"query": "262.28.928", "no_of_results": 0, "error": ""}, {"query": "4023149180378", "no_of_results": 1, "error": ""}, {"query": "407.90.010", "no_of_results": 0, "error": ""}, {"query": "431.01.810", "no_of_results": 0, "error": ""}, {"query": "503.70.532", "no_of_results": 0, "error": ""}, {"query": "5113-4554", "no_of_results": 1, "error": ""}, {"query": "547.52.323", "no_of_results": 0, "error": ""}, {"query": "5501660", "no_of_results": 0, "error": ""}, {"query": "69073714525", "no_of_results": 1, "error": ""}, {"query": "801.13.391", "no_of_results": 0, "error": ""}, {"query": "882930000066255", "no_of_results": 0, "error": ""}, {"query": "ANselmi", "no_of_results": 13, "error": ""}, {"query": "Accuride", "no_of_results": 65, "error": ""}, {"query": "Akku", "no_of_results": 465, "error": ""}, {"query": "Akkuschrauber", "no_of_results": 582, "error": ""}, {"query": "Aximat®", "no_of_results": 86, "error": ""}, {"query": "LCDN1763-1", "no_of_results": 0, "error": ""}, {"query": "LCDN17639-1", "no_of_results": 0, "error": ""}, {"query": "PLHR380.500NFPB", "no_of_results": 0, "error": ""}, {"query": "Padspsa", "no_of_results": 68, "error": ""}, {"query": "Psapads", "no_of_results": 53, "error": ""}, {"query": "RICHELIEU WEBKIT1008357", "no_of_results": 15, "error": ""}, {"query": "Rivermill", "no_of_results": 2, "error": ""}, {"query": "Rscbl", "no_of_results": 43, "error": ""}, {"query": "SILVERWARE", "no_of_results": 25, "error": ""}, {"query": "SIMMONS", "no_of_results": 5, "error": ""}, {"query": "Sandable", "no_of_results": 321, "error": ""}, {"query": "TLLNCLPHLDR", "no_of_results": 11, "error": ""}, {"query": "UTC rau seana", "no_of_results": 0, "error": ""}, {"query": "WICKER", "no_of_results": 181, "error": ""}, {"query": "WRO17810450", "no_of_results": 0, "error": ""}, {"query": "accordion", "no_of_results": 367, "error": ""}, {"query": "accuride", "no_of_results": 127, "error": ""}, {"query": "accuride 12318", "no_of_results": 23, "error": ""}, {"query": "acuride", "no_of_results": 128, "error": ""}, {"query": "coplanar", "no_of_results": 97, "error": ""}, {"query": "corbin 02067", "no_of_results": 66, "error": ""}, {"query": "courner gaurd", "no_of_results": 87, "error": ""}, {"query": "dropbolt", "no_of_results": 284, "error": ""}, {"query": "fry reglet", "no_of_results": 187, "error": ""}, {"query": "futwh", "no_of_results": 0, "error": ""}, {"query": "galley", "no_of_results": 127, "error": ""}, {"query": "gorilla", "no_of_results": 240, "error": ""}, {"query": "gorilla (duplicate)", "no_of_results": 22, "error": ""}, {"query": "gorilla 8010003", "no_of_results": 12, "error": ""}, {"query": "gromit", "no_of_results": 258, "error": ""}, {"query": "innova", "no_of_results": 220, "error": ""}, {"query": "jerkbox", "no_of_results": 472, "error": ""}, {"query": "lemmans", "no_of_results": 65, "error": ""}, {"query": "melaisi", "no_of_results": 212, "error": ""}, {"query": "monoflat", "no_of_results": 161, "error": ""}, {"query": "planofit", "no_of_results": 44, "error": ""}, {"query": "revego", "no_of_results": 201, "error": ""}, {"query": "richard", "no_of_results": 1, "error": ""}, {"query": "silverware", "no_of_results": 134, "error": ""}, {"query": "simplehuman", "no_of_results": 62, "error": ""}, {"query": "treco conector", "no_of_results": 135, "error": ""}, {"query": "ultramatte", "no_of_results": 0, "error": ""}, {"query": "vibio", "no_of_results": 0, "error": ""}, {"query": "woodfeet", "no_of_results": 210, "error": ""}, {"query": "worksharp", "no_of_results": 117, "error": ""}];
+    const zeroRows = [{"query": "25055101103", "no_of_results": 0, "error": ""}, {"query": "AVWHBM", "no_of_results": 0, "error": ""}, {"query": "exedra", "no_of_results": 0, "error": ""}, {"query": "006.47.068", "no_of_results": 0, "error": ""}, {"query": "10090008952", "no_of_results": 0, "error": ""}, {"query": "11826595", "no_of_results": 0, "error": ""}, {"query": "144-130-191", "no_of_results": 0, "error": ""}, {"query": "144-130-202", "no_of_results": 0, "error": ""}, {"query": "144-130-289", "no_of_results": 0, "error": ""}, {"query": "144-140-190", "no_of_results": 0, "error": ""}, {"query": "2014-2055", "no_of_results": 0, "error": ""}, {"query": "262.28.928", "no_of_results": 0, "error": ""}, {"query": "407.90.010", "no_of_results": 0, "error": ""}, {"query": "431.01.810", "no_of_results": 0, "error": ""}, {"query": "503.70.532", "no_of_results": 0, "error": ""}, {"query": "547.52.323", "no_of_results": 0, "error": ""}, {"query": "5501660", "no_of_results": 0, "error": ""}, {"query": "801.13.391", "no_of_results": 0, "error": ""}, {"query": "882930000066255", "no_of_results": 0, "error": ""}, {"query": "LCDN1763-1", "no_of_results": 0, "error": ""}, {"query": "LCDN17639-1", "no_of_results": 0, "error": ""}, {"query": "PLHR380.500NFPB", "no_of_results": 0, "error": ""}, {"query": "UTC rau seana", "no_of_results": 0, "error": ""}, {"query": "WRO17810450", "no_of_results": 0, "error": ""}, {"query": "futwh", "no_of_results": 0, "error": ""}, {"query": "ultramatte", "no_of_results": 0, "error": ""}, {"query": "vibio", "no_of_results": 0, "error": ""}];
+    const nonZeroRows = [{"query": "Striplox", "no_of_results": 33, "error": ""}, {"query": "tghtbond", "no_of_results": 166, "error": ""}, {"query": "kerft 0.126", "no_of_results": 2, "error": ""}, {"query": "4023149180378", "no_of_results": 1, "error": ""}, {"query": "5113-4554", "no_of_results": 1, "error": ""}, {"query": "69073714525", "no_of_results": 1, "error": ""}, {"query": "ANselmi", "no_of_results": 13, "error": ""}, {"query": "Accuride", "no_of_results": 65, "error": ""}, {"query": "Akku", "no_of_results": 465, "error": ""}, {"query": "Akkuschrauber", "no_of_results": 582, "error": ""}, {"query": "Aximat®", "no_of_results": 86, "error": ""}, {"query": "Padspsa", "no_of_results": 68, "error": ""}, {"query": "Psapads", "no_of_results": 53, "error": ""}, {"query": "RICHELIEU WEBKIT1008357", "no_of_results": 15, "error": ""}, {"query": "Rivermill", "no_of_results": 2, "error": ""}, {"query": "Rscbl", "no_of_results": 43, "error": ""}, {"query": "SILVERWARE", "no_of_results": 25, "error": ""}, {"query": "SIMMONS", "no_of_results": 5, "error": ""}, {"query": "Sandable", "no_of_results": 321, "error": ""}, {"query": "TLLNCLPHLDR", "no_of_results": 11, "error": ""}, {"query": "WICKER", "no_of_results": 181, "error": ""}, {"query": "accordion", "no_of_results": 367, "error": ""}, {"query": "accuride", "no_of_results": 127, "error": ""}, {"query": "accuride 12318", "no_of_results": 23, "error": ""}, {"query": "acuride", "no_of_results": 128, "error": ""}, {"query": "coplanar", "no_of_results": 97, "error": ""}, {"query": "corbin 02067", "no_of_results": 66, "error": ""}, {"query": "courner gaurd", "no_of_results": 87, "error": ""}, {"query": "dropbolt", "no_of_results": 284, "error": ""}, {"query": "fry reglet", "no_of_results": 187, "error": ""}, {"query": "galley", "no_of_results": 127, "error": ""}, {"query": "gorilla", "no_of_results": 240, "error": ""}, {"query": "gorilla (duplicate)", "no_of_results": 22, "error": ""}, {"query": "gorilla 8010003", "no_of_results": 12, "error": ""}, {"query": "gromit", "no_of_results": 258, "error": ""}, {"query": "innova", "no_of_results": 220, "error": ""}, {"query": "jerkbox", "no_of_results": 472, "error": ""}, {"query": "lemmans", "no_of_results": 65, "error": ""}, {"query": "melaisi", "no_of_results": 212, "error": ""}, {"query": "monoflat", "no_of_results": 161, "error": ""}, {"query": "planofit", "no_of_results": 44, "error": ""}, {"query": "revego", "no_of_results": 201, "error": ""}, {"query": "richard", "no_of_results": 1, "error": ""}, {"query": "silverware", "no_of_results": 134, "error": ""}, {"query": "simplehuman", "no_of_results": 62, "error": ""}, {"query": "treco conector", "no_of_results": 135, "error": ""}, {"query": "woodfeet", "no_of_results": 210, "error": ""}, {"query": "worksharp", "no_of_results": 117, "error": ""}];
+    const summary = {"api_base": "https://search-api-wurthbaer-qa.search-villvay.workers.dev/search", "generated_at": "2026-04-09 09:24:55", "total_queries": 75, "zero_result_queries": 27, "non_zero_queries": 48, "error_queries": 0, "columns": ["query", "no_of_results"]};
+    const meta = document.getElementById("meta");
+    meta.innerText = "API: " + summary.api_base + " | Generated: " + summary.generated_at;
+
+    const cards = document.getElementById("cards");
+    [
+      ["Total Queries", summary.total_queries],
+      ["No Results (0)", summary.zero_result_queries],
+      ["With Results (>0)", summary.non_zero_queries],
+      ["Errors", summary.error_queries]
+    ].forEach(([k, v]) => {
+      const d = document.createElement("div");
+      d.className = "card";
+      d.innerHTML = "<div><strong>" + k + "</strong></div><div style='font-size:22px;margin-top:4px;'>" + v + "</div>";
+      cards.appendChild(d);
+    });
+
+    function render(data) {
+      const tb = document.getElementById("tbody");
+      tb.innerHTML = "";
+      data.forEach(r => {
+        const tr = document.createElement("tr");
+        const n = Number(r.no_of_results || 0);
+        const status = n === 0 ? "<span class='zero'>NO RESULT</span>" : "<span class='ok'>HAS RESULT</span>";
+        tr.innerHTML = `
+          <td>${r.query || ""}</td>
+          <td>${n}</td>
+          <td>${status}</td>
+          <td>${r.error || ""}</td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    const btnZero = document.getElementById("btnZero");
+    const btnAll = document.getElementById("btnAll");
+    const btnNonZero = document.getElementById("btnNonZero");
+    function activate(btn) {
+      [btnZero, btnAll, btnNonZero].forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+    btnZero.onclick = () => { activate(btnZero); render(zeroRows); };
+    btnAll.onclick = () => { activate(btnAll); render(rows); };
+    btnNonZero.onclick = () => { activate(btnNonZero); render(nonZeroRows); };
+    render(zeroRows);
+  </script>
+</body>
+</html>

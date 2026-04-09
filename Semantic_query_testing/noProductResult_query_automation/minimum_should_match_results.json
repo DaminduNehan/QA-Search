@@ -1,0 +1,391 @@
+{
+  "summary": {
+    "api_base": "https://search-api-wurthbaer-qa.search-villvay.workers.dev/search",
+    "generated_at": "2026-04-09 09:24:55",
+    "total_queries": 75,
+    "zero_result_queries": 27,
+    "non_zero_queries": 48,
+    "error_queries": 0,
+    "columns": [
+      "query",
+      "no_of_results"
+    ]
+  },
+  "results": [
+    {
+      "query": "25055101103",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "AVWHBM",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "Striplox",
+      "no_of_results": 33,
+      "error": ""
+    },
+    {
+      "query": "exedra",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "tghtbond",
+      "no_of_results": 166,
+      "error": ""
+    },
+    {
+      "query": "kerft 0.126",
+      "no_of_results": 2,
+      "error": ""
+    },
+    {
+      "query": "006.47.068",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "10090008952",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "11826595",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "144-130-191",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "144-130-202",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "144-130-289",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "144-140-190",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "2014-2055",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "262.28.928",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "4023149180378",
+      "no_of_results": 1,
+      "error": ""
+    },
+    {
+      "query": "407.90.010",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "431.01.810",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "503.70.532",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "5113-4554",
+      "no_of_results": 1,
+      "error": ""
+    },
+    {
+      "query": "547.52.323",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "5501660",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "69073714525",
+      "no_of_results": 1,
+      "error": ""
+    },
+    {
+      "query": "801.13.391",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "882930000066255",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "ANselmi",
+      "no_of_results": 13,
+      "error": ""
+    },
+    {
+      "query": "Accuride",
+      "no_of_results": 65,
+      "error": ""
+    },
+    {
+      "query": "Akku",
+      "no_of_results": 465,
+      "error": ""
+    },
+    {
+      "query": "Akkuschrauber",
+      "no_of_results": 582,
+      "error": ""
+    },
+    {
+      "query": "Aximat®",
+      "no_of_results": 86,
+      "error": ""
+    },
+    {
+      "query": "LCDN1763-1",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "LCDN17639-1",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "PLHR380.500NFPB",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "Padspsa",
+      "no_of_results": 68,
+      "error": ""
+    },
+    {
+      "query": "Psapads",
+      "no_of_results": 53,
+      "error": ""
+    },
+    {
+      "query": "RICHELIEU WEBKIT1008357",
+      "no_of_results": 15,
+      "error": ""
+    },
+    {
+      "query": "Rivermill",
+      "no_of_results": 2,
+      "error": ""
+    },
+    {
+      "query": "Rscbl",
+      "no_of_results": 43,
+      "error": ""
+    },
+    {
+      "query": "SILVERWARE",
+      "no_of_results": 25,
+      "error": ""
+    },
+    {
+      "query": "SIMMONS",
+      "no_of_results": 5,
+      "error": ""
+    },
+    {
+      "query": "Sandable",
+      "no_of_results": 321,
+      "error": ""
+    },
+    {
+      "query": "TLLNCLPHLDR",
+      "no_of_results": 11,
+      "error": ""
+    },
+    {
+      "query": "UTC rau seana",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "WICKER",
+      "no_of_results": 181,
+      "error": ""
+    },
+    {
+      "query": "WRO17810450",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "accordion",
+      "no_of_results": 367,
+      "error": ""
+    },
+    {
+      "query": "accuride",
+      "no_of_results": 127,
+      "error": ""
+    },
+    {
+      "query": "accuride 12318",
+      "no_of_results": 23,
+      "error": ""
+    },
+    {
+      "query": "acuride",
+      "no_of_results": 128,
+      "error": ""
+    },
+    {
+      "query": "coplanar",
+      "no_of_results": 97,
+      "error": ""
+    },
+    {
+      "query": "corbin 02067",
+      "no_of_results": 66,
+      "error": ""
+    },
+    {
+      "query": "courner gaurd",
+      "no_of_results": 87,
+      "error": ""
+    },
+    {
+      "query": "dropbolt",
+      "no_of_results": 284,
+      "error": ""
+    },
+    {
+      "query": "fry reglet",
+      "no_of_results": 187,
+      "error": ""
+    },
+    {
+      "query": "futwh",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "galley",
+      "no_of_results": 127,
+      "error": ""
+    },
+    {
+      "query": "gorilla",
+      "no_of_results": 240,
+      "error": ""
+    },
+    {
+      "query": "gorilla (duplicate)",
+      "no_of_results": 22,
+      "error": ""
+    },
+    {
+      "query": "gorilla 8010003",
+      "no_of_results": 12,
+      "error": ""
+    },
+    {
+      "query": "gromit",
+      "no_of_results": 258,
+      "error": ""
+    },
+    {
+      "query": "innova",
+      "no_of_results": 220,
+      "error": ""
+    },
+    {
+      "query": "jerkbox",
+      "no_of_results": 472,
+      "error": ""
+    },
+    {
+      "query": "lemmans",
+      "no_of_results": 65,
+      "error": ""
+    },
+    {
+      "query": "melaisi",
+      "no_of_results": 212,
+      "error": ""
+    },
+    {
+      "query": "monoflat",
+      "no_of_results": 161,
+      "error": ""
+    },
+    {
+      "query": "planofit",
+      "no_of_results": 44,
+      "error": ""
+    },
+    {
+      "query": "revego",
+      "no_of_results": 201,
+      "error": ""
+    },
+    {
+      "query": "richard",
+      "no_of_results": 1,
+      "error": ""
+    },
+    {
+      "query": "silverware",
+      "no_of_results": 134,
+      "error": ""
+    },
+    {
+      "query": "simplehuman",
+      "no_of_results": 62,
+      "error": ""
+    },
+    {
+      "query": "treco conector",
+      "no_of_results": 135,
+      "error": ""
+    },
+    {
+      "query": "ultramatte",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "vibio",
+      "no_of_results": 0,
+      "error": ""
+    },
+    {
+      "query": "woodfeet",
+      "no_of_results": 210,
+      "error": ""
+    },
+    {
+      "query": "worksharp",
+      "no_of_results": 117,
+      "error": ""
+    }
+  ]
+}
